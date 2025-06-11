@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import { useState, useCallback } from "react";
 import { Modal, View, Text, TouchableOpacity, Pressable } from 'react-native';
 import LottieView from 'lottie-react-native';
 

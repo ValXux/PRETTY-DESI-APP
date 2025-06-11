@@ -10,6 +10,7 @@ const Tab = createBottomTabNavigator();
 export default function BottomTabs() {
     return (
         <Tab.Navigator
+            initialRouteName="Home"
             screenOptions={({ route }) => ({
                 headerShown: false,
                 tabBarIcon: ({focused, size }) => {
@@ -21,10 +22,10 @@ export default function BottomTabs() {
                     return <Ionicons
                         name= {iconMap[route.name]}
                         size={size}
-                        color={focused ? "#673ab7" : "#222"}
+                        color={focused ? "#F48FB1" : "#222"}
                     />
                 },
-                tabBarActiveTintColor: "#673ab7",
+                tabBarActiveTintColor: "#F48FB1",
                 tabBarInactiveTintColor: "#222",
             })}
         >
