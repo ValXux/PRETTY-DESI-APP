@@ -1,6 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 import { NavigationContainer } from '@react-navigation/native';
 import AppNavigator from './src/navigation/AppNavigator';
 
@@ -13,7 +15,15 @@ export default function App() {
     //  <StatusBar style="auto" />
     //</View>
     <NavigationContainer>
-      <AppNavigator />
+      <SafeAreaView style={styles.root}>
+        <AppNavigator />
+      </SafeAreaView>
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
+});
