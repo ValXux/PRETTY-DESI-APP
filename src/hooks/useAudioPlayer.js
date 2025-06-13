@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Audio } from "expo-av";
 import { songList } from "../screens/Music/PlaylistList";
 
@@ -6,8 +6,8 @@ export default function useAudioPlayer() {
     const [currentSong, setCurrentSong] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const soundRef = useRef(null);
-    const isChangingRef = useRef(false); // 🔒 para evitar conflictos
 
+    // Reproduce la primera cancion automáticamente al cargar el hook
     useEffect(() => {
         play(songList[0]);
 
@@ -15,47 +15,46 @@ export default function useAudioPlayer() {
             if (soundRef.current) {
                 soundRef.current.unloadAsync();
             }
-        };
+        }
     }, []);
 
     const play = async (song) => {
         try {
-            isChangingRef.current = true;
-
-            // Detener y descargar canción anterior
-            if (soundRef.current) {
+            // Solo descarga si es una canción NUEVA
+            if (soundRef.current && currentSong?.id !== song.id) {
                 await soundRef.current.unloadAsync();
                 soundRef.current = null;
             }
 
-            const { sound } = await Audio.Sound.createAsync(song.audio);
-            soundRef.current = sound;
-            setCurrentSong(song);
+            // Si no hay sonido o es una canción nueva, crea uno
+            if (!soundRef.current || currentSong?.id !== song.id) {
+                const { sound } = await Audio.Sound.createAsync(song.audio);
+                soundRef.current = sound;
+                setCurrentSong(song);
+
+                sound.setOnPlaybackStatusUpdate((status) => {
+                    if (status.didJustFinish) playNext();
+                });
+            }
+
+            // Reproduce siempre
+            await soundRef.current.playAsync();
             setIsPlaying(true);
-
-            sound.setOnPlaybackStatusUpdate((status) => {
-                if (status.didJustFinish && !status.isLooping && !isChangingRef.current) {
-                    playNext();
-                }
-            });
-
-            await sound.playAsync();
         } catch (error) {
             console.error("Error playing song:", error);
-        } finally {
-            isChangingRef.current = false;
         }
     };
 
     const playNext = async () => {
-        if (!currentSong) return;
-
         const currentIndex = songList.findIndex((s) => s.id === currentSong.id);
-        const nextIndex = (currentIndex + 1) % songList.length;
-        const nextSong = songList[nextIndex];
+        const nextSong = (currentIndex + 1) % songList.length;
 
-        await play(nextSong); // 🚀 se asegura de limpiar antes
-    };
+        if (nextSong) {
+            await play(nextSong);
+        } else {
+            await play(songList[0]); // Reproduce la primera canción si no hay siguiente
+        }
+    }
 
     const pause = async () => {
         if (soundRef.current) {
@@ -66,11 +65,8 @@ export default function useAudioPlayer() {
 
     const resume = async () => {
         if (soundRef.current) {
-            const status = await soundRef.current.getStatusAsync();
-            if (status.isLoaded && !status.isPlaying) {
-                await soundRef.current.playAsync();
-                setIsPlaying(true);
-            }
+            await soundRef.current.playAsync();
+            setIsPlaying(true);
         }
     };
 
@@ -78,8 +74,8 @@ export default function useAudioPlayer() {
         currentSong,
         isPlaying,
         play,
+        playNext,
         pause,
         resume,
-        playNext,
     };
 }

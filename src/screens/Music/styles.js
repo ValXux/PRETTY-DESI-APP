@@ -48,7 +48,9 @@ export default StyleSheet.create({
     },
     controls: {
         flexDirection: 'row',
-        gap: 15,
-        marginTop: 5,
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginTop: 10,
+        paddingHorizontal: 30,
     },
 });

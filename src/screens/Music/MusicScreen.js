@@ -40,6 +40,13 @@ export default function MusicScreen() {
                             color={currentSong?.id === item.id ? '#ff5e78' : '#999'}
                         />
                     </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Feather 
+                            name="heart"
+                            size={30}
+                            color="#999"
+                        />
+                    </TouchableOpacity>
                 </View>
             </View>
         </View>
